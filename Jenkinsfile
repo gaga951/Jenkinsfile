@@ -1,44 +1,10 @@
-def gv
-
 pipeline {
-    agent any
-    parameters {
-        choice(name: 'VERSION', choices: ['1.1.0', '1.2.0', '1.3.0'], description: '')
-        booleanParam(name: 'executeTests', defaultValue: true, description: '')
-    }
+    agent { docker { image 'maven:3.8.4-openjdk-11-slim' } }
     stages {
-        stage("init") {
+        stage('build') {
             steps {
-                script {
-                   gv = load "script.groovy" 
-                }
+                sh 'mvn --version'
             }
         }
-        stage("build") {
-            steps {
-                script {
-                    gv.buildApp()
-                }
-            }
-        }
-        stage("test") {
-            when {
-                expression {
-                    params.executeTests
-                }
-            }
-            steps {
-                script {
-                    gv.testApp()
-                }
-            }
-        }
-        stage("deploy") {
-            steps {
-                script {
-                    gv.deployApp()
-                }
-            }
-        }
-    }   
+    }
 }
