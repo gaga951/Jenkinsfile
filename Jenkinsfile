@@ -23,8 +23,8 @@ mvn clean'''
 
     stage('Report') {
       steps {
-        archiveArtifacts 'target/*.jar.target/*.hpi'
         junit 'target/surefire-reports/**/*.xml'
+        archiveArtifacts 'target/*.jar.target/*.hpi'
       }
     }
 
