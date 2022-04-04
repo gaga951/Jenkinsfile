@@ -13,12 +13,5 @@ pipeline {
       }
     }
 
-    stage('Report') {
-      steps {
-        junit 'target/surefire-reports/**/*.xml'
-        archiveArtifacts 'target/*.jar.target/*.hpi'
-      }
-    }
-
   }
 }
