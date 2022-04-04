@@ -23,7 +23,7 @@ mvn clean'''
 
     stage('Report') {
       steps {
-        junit 'target/surfefire-reports/*'
+        junit 'target/surefire-reports/*'
         archiveArtifacts 'target/*.jar.target/*.hpi'
       }
     }
