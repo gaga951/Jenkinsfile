@@ -1,0 +1,112 @@
+//
+pipeline {
+    agent dockerfile
+   environments
+   {
+   aws_aim_token = credentails('aws_credentals')
+   }
+   
+   
+    stages {
+        stage('Test') {
+            steps {
+services:
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - ./joomla:/var/www/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - joomla
+}
+        }
+    }
+
+        stages {
+        stage('Test') echo {
+            steps {
+
+}
+        }
+    }
+    
+    
+    
+################################################
+
+    
+    sample Jenkinsfile. Might not compile
+node {
+    checkout scm
+    withEnv(['MYTOOL_HOME=/usr/local/mytool']) {
+        docker.image("postgres:9.2").withRun() { db ->
+            withEnv(['DB_USERNAME=postgres', 'DB_PASSWORD=', "DB_HOST=db", "DB_PORT=5432"]) {
+                docker.image("redis:X").withRun() { redis ->
+                    withEnv(["REDIS_URL=redis://redis"]) {
+                        docker.build(imageName, "--file .woloxci/Dockerfile .").inside("--link ${db.id}:postgres --link ${redis.id}:redis") {
+                            sh "rake db:create"
+                            sh "rake db:migrate"
+                            sh "bundle exec rspec spec"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+################################################
+
+    
+    post {
+        always {
+            echo 'This will always run'
+        }
+        success {
+            echo 'This will run only if successful'
+        }
+        failure {
+            echo 'This will run only if failed'
+        }
+        unstable {
+            echo 'This will run only if the run was marked as unstable'
+        }
+        changed {
+            echo 'This will run only if the state of the Pipeline has changed'
+            echo 'For example, if the Pipeline was previously failing but is now successful'
+        }
+    }
+}
+
+################################################
+
+config:
+  dockerfile: .woloxci/Dockerfile
+  project_name: some-project-name
+
+services:
+  - postgresql
+  - redis
+
+steps:
+  analysis:
+    - bundle exec rubocop -R app spec --format simple
+    - bundle exec rubycritic --path ./analysis --minimum-score 80 --no-browser
+  setup_db:
+    - bundle exec rails db:create
+    - bundle exec rails db:schema:load
+  test:
+    - bundle exec rspec
+  security:
+    - bundle exec brakeman --exit-on-error
+  audit:
+    - bundle audit check --update
+
+
+environment:
+  RAILS_ENV: test
+  GIT_COMMITTER_NAME: a
+  GIT_COMMITTER_EMAIL: b
+  LANG: C.UTF-8
